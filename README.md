@@ -66,21 +66,21 @@ brew services start postgresql@16
     *   `export DATABASE_URL="postgresql://postgres:admin@localhost/bookings_db"`
 
 ### 2. Configuración del Backend (Python)
-Se recomienda crear un entorno virtual para aislar las dependencias:
+Se recomienda usar los scripts de ayuda para una configuración rápida:
 
 ```bash
-# Crear entorno virtual
+# 1. Crear y activar entorno virtual (Recomendado)
 python3 -m venv venv
 source venv/bin/activate  # En Windows: venv\Scripts\activate
 
-# Instalar dependencias de cada microservicio
-pip install -r api-gateway/requirements.txt
-pip install -r microservicio-reservas/requirements.txt
-pip install -r microservicio-busqueda/requirements.txt
-pip install -r microservicio-pagos/requirements.txt
-pip install -r microservicio-inventario/requirements.txt
-pip install -r microservicio-analisis/requirements.txt
-pip install -r microservicio-monitor/requirements.txt
+# 2. Dar permisos de ejecución a los scripts de ayuda
+chmod +x scripts/*.sh
+
+# 3. Configurar bases de datos (requiere PostgreSQL iniciado)
+./scripts/setup_postgres_dbs.sh
+
+# 4. Instalar todas las dependencias del backend
+./scripts/install_backend.sh
 ```
 
 ### 3. Configuración del Frontend (Angular)
