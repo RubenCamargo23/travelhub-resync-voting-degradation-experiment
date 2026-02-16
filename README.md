@@ -184,14 +184,33 @@ Para inspeccionar los datos generados por los microservicios, puedes usar cualqu
 
 *   **Host:** `localhost`
 *   **Port:** `5432`
-*   **User:** tu usuario de mac (`rubencamargoortegon`) o `postgres`
-*   **Password:** (dejar vacío)
-*   **Databases:**
-    *   `bookings_db` (Reservas)
-    *   `payments_db` (Votos de Pagos)
-    *   `inventory_db` (Stock)
-    *   `monitor_db` (Logs de Monitor/Análisis)
+*   **User:** Tu usuario de Mac (ej: `postgres`).
+*   **Password:** (dejar vacío).
 
+#### Configuración en DBeaver
+
+| Parámetro | Mac (Homebrew) | Windows (Instalador) |
+| :--- | :--- | :--- |
+| **Host** | `localhost` | `localhost` |
+| **Port** | `5432` | `5432` |
+| **User** | Tu usuario de Mac (`whoami`) | `postgres` |
+| **Password** | (vacío) | La que definiste (ej: `admin`) |
+
+#### Notas por Sistema Operativo
+
+*   **Mac (Homebrew):** PostgreSQL usa el método `trust` para conexiones locales, permitiendo el acceso sin contraseña si el usuario coincide con tu sesión de Mac.
+*   **Windows:** El instalador siempre solicita una contraseña para el usuario `postgres`. Recuerda que si cambiaste la contraseña predeterminada, deberás actualizar la variable de entorno `DATABASE_URL` en tus scripts de arranque.
+
+#### Las 4 conexiones necesarias
+Debes conectar a estas bases de datos (todas en `localhost:5432`):
+
+| Base de Datos | Microservicio que la usa |
+| :--- | :--- |
+| `bookings_db` | Reservas |
+| `payments_db` | Pagos (Votación) |
+| `inventory_db` | Inventario (Resincronización) |
+| `monitor_db` | Monitor y Análisis |
+|
 **Ejemplo por Terminal:**
 
 ```bash
