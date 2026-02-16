@@ -195,7 +195,7 @@ Para inspeccionar los datos generados por los microservicios, puedes usar cualqu
 **Ejemplo por Terminal:**
 
 ```bash
-# ----- CONSULTA DE RESERVAS (H1) -----
+# ----- CONSULTA DE RESERVAS -----
 # Conectarse a la DB de reservas
 psql bookings_db
 # Ver las reservas creadas
@@ -203,13 +203,13 @@ SELECT * FROM reservas;
 # Ver los eventos de Outbox pendientes o procesados
 SELECT * FROM reservation_events;
 
-# ----- CONSULTA DE INVENTARIO (H1) -----
+# ----- CONSULTA DE INVENTARIO -----
 # Conectarse a la DB de inventario
 psql inventory_db
 # Ver si el stock bajó (cantidad inicial 100)
 SELECT * FROM inventario;
 
-# ----- CONSULTA DE PAGOS (H2) -----
+# ----- CONSULTA DE PAGOS -----
 # Conectarse a la DB de pagos
 psql payments_db
 # Ver los votos de cada réplica
