@@ -1,0 +1,9 @@
+Flask
+Flask-Cors
+Flask-JWT-Extended
+Flask-RESTful
+Flask-SQLAlchemy
+SQLAlchemy
+APScheduler
+psycopg2-binary
+gunicorn
