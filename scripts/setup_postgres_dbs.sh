@@ -18,8 +18,7 @@ echo "Creando bases de datos para experimentos..."
 createdb bookings_db || echo "bookings_db ya existe"
 createdb payments_db || echo "payments_db ya existe"
 createdb inventory_db || echo "inventory_db ya existe"
-# Las otras apps usan DB por defecto o no requieren
+createdb monitor_db || echo "monitor_db ya existe"
 
 echo "Bases de datos creadas."
-echo "Para usarlas, debes establecer la variable DATABASE_URL antes de ejecutar cada app python, por ejemplo:"
-echo "export DATABASE_URL=postgresql://localhost/bookings_db"
+echo "'start_backend.sh' configurando conexiones."

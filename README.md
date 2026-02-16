@@ -43,9 +43,27 @@ El proyecto busca validar tres comportamientos críticos ante fallas:
 ## Instalación y Ejecución Desde Cero
 
 ### 1. Prerrequisitos
-*   Python 3.10+
-*   Node.js 18+ (LTS)
-*   Angular CLI 15+ (`npm install -g @angular/cli`)
+*   **Python 3.10+**
+*   **Node.js 18+ (LTS)**
+*   **Angular CLI 15+** (`npm install -g @angular/cli`)
+*   **PostgreSQL 14+**
+
+#### Instalación en macOS (Homebrew)
+La forma más sencilla es usar Homebrew.
+```bash
+brew install postgresql@16
+brew services start postgresql@16
+```
+*Por defecto no configura contraseña, lo cual es ideal para desarrollo local.*
+
+#### Instalación en Windows
+1.  Descarga el instalador desde [postgresql.org/download/windows](https://www.postgresql.org/download/windows/).
+2.  Ejecuta el instalador. Mantén el puerto `5432` por defecto.
+3.  **Importante:** Te pedirá una contraseña para el superusuario `postgres`. Anótala (ej: `admin`).
+4.  Al finalizar, abre **pgAdmin** o la terminal SQL Shell (psql).
+5.  **Configuración del Proyecto:**
+    *   En Windows, deberás editar el archivo `scripts/start_backend.sh` (o ejecutar manualmente) para incluir tu contraseña:
+    *   `export DATABASE_URL="postgresql://postgres:admin@localhost/bookings_db"`
 
 ### 2. Configuración del Backend (Python)
 Se recomienda crear un entorno virtual para aislar las dependencias:
@@ -155,3 +173,45 @@ El proyecto incluye un **Dashboard de Experimentos** en el Frontend (`http://loc
     3.  Al 4to intento, el **Circuit Breaker** se abre.
     4.  Verificar que recibes una respuesta **inmediata** (sin timeout) con origen `"Fallback"`. Esto confirma que el sistema se degradó funcionalmente para protegerse.
     5.  (Opcional) Reiniciar el servicio y esperar 30s para que el circuito se cierre.
+
+---
+
+## Conexión a Base de Datos (PostgreSQL)
+
+Para inspeccionar los datos generados por los microservicios, puedes usar cualquier cliente SQL (como **TablePlus**, **DBeaver**, **pgAdmin** o la terminal `psql`).
+
+**Parámetros de Conexión (Instalación Homebrew por defecto):**
+
+*   **Host:** `localhost`
+*   **Port:** `5432`
+*   **User:** tu usuario de mac (`rubencamargoortegon`) o `postgres`
+*   **Password:** (dejar vacío)
+*   **Databases:**
+    *   `bookings_db` (Reservas)
+    *   `payments_db` (Votos de Pagos)
+    *   `inventory_db` (Stock)
+    *   `monitor_db` (Logs de Monitor/Análisis)
+
+**Ejemplo por Terminal:**
+
+```bash
+# ----- CONSULTA DE RESERVAS (H1) -----
+# Conectarse a la DB de reservas
+psql bookings_db
+# Ver las reservas creadas
+SELECT * FROM reservas;
+# Ver los eventos de Outbox pendientes o procesados
+SELECT * FROM reservation_events;
+
+# ----- CONSULTA DE INVENTARIO (H1) -----
+# Conectarse a la DB de inventario
+psql inventory_db
+# Ver si el stock bajó (cantidad inicial 100)
+SELECT * FROM inventario;
+
+# ----- CONSULTA DE PAGOS (H2) -----
+# Conectarse a la DB de pagos
+psql payments_db
+# Ver los votos de cada réplica
+SELECT * FROM payment_votes ORDER BY timestamp DESC;
+```
