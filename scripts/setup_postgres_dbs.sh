@@ -1,17 +1,16 @@
 #!/bin/bash
 
-# Script de ayuda para configurar bases de datos PostgreSQL en Mac M1
 # Requiere que PostgreSQL esté iniciado
 
-echo "Verificando si PostgreSQL está instalado..."
-if ! command -v psql &> /dev/null
-then
-    echo "PostgreSQL no encontrado. Instalando con Homebrew..."
-    brew install postgresql@14
-    brew services start postgresql@14
-    echo "Instalado. Esperando arranque..."
-    sleep 5
-fi
+# echo "Verificando si PostgreSQL está instalado..."
+# if ! command -v psql &> /dev/null
+# then
+#     echo "PostgreSQL no encontrado. Instalando con Homebrew..."
+#     brew install postgresql@14
+#     brew services start postgresql@14
+#     echo "Instalado. Esperando arranque..."
+#     sleep 5
+# fi
 
 echo "Creando bases de datos para experimentos..."
 

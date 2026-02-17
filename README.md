@@ -52,6 +52,9 @@ El proyecto busca validar tres comportamientos críticos ante fallas:
 La forma más sencilla es usar Homebrew.
 ```bash
 brew install postgresql@16
+echo 'export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"' >> ~/.zshrc
+export LDFLAGS="-L/opt/homebrew/opt/postgresql@16/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/postgresql@16/include"
 brew services start postgresql@16
 ```
 *Por defecto no configura contraseña, lo cual es ideal para desarrollo local.*
