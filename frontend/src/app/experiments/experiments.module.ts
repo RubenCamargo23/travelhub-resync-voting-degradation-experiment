@@ -3,10 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ExperimentsRoutingModule } from './experiments-routing.module';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { HttpClientModule } from '@angular/common/http';
+import { ServiceCardComponent } from '../components/service-card/service-card.component';
 
 @NgModule({
     declarations: [
-        DashboardComponent
+        DashboardComponent,
+        ServiceCardComponent
     ],
     imports: [
         CommonModule,

@@ -1,76 +1,29 @@
-<div style="padding: 20px;">
-    <h1>Experimentos Sprint 1</h1>
+<div class="dashboard-container">
+    <div class="page-header">
+        <h1 class="page-title">Deployments</h1>
 
-    <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
-        <h2>Hipótesis 1: Si un microservicio cae y vuelve, puede resincronizar su estado automáticamente</h2>
-        <p>Crea una reserva y verifica que el Inventario (logs) procese el evento.</p>
-
-        <h3>Tácticas de Arquitectura:</h3>
-        <ul>
-            <li>
-                <strong>State Recovery Manager:</strong> Reconstrucción del estado del servicio a partir del Event Log.
-                <br><em>Implementación:</em> Tabla <code>reservation_events</code> persiste todos los cambios.
-                Inventario consulta esta tabla al iniciar para sincronizarse sin depender de Reservas.
-            </li>
-            <li>
-                <strong>Comunicación Asíncrona:</strong> Reducción del acoplamiento temporal mediante propagación de
-                eventos.
-                <br><em>Implementación:</em> Patrón <strong>Outbox</strong>. Reservas guarda el evento localmente y
-                responde inmediatamente. Un <strong>Polling Consumer</strong> en Inventario procesa los eventos
-                pendientes asíncronamente.
-            </li>
-        </ul>
-
-        <button (click)="testH1()">Crear Reserva</button>
-        <pre>{{ h1Result | json }}</pre>
+        <div class="header-controls">
+            <div class="sort-control">
+                Sort by
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="size-6 icon-sm">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M8.25 15 12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
+                </svg>
+            </div>
+        </div>
     </div>
 
-    <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
-        <h2>Hipótesis 2: Un sistema de votación con 5 réplicas puede detectar una réplica defectuosa mediante consenso
-        </h2>
-        <p>Intenta pagar una reserva usando 5 réplicas (una fallará).</p>
-
-        <h3>Tácticas de Arquitectura:</h3>
-        <ul>
-            <li>
-                <strong>Replicación de Servicios (Active-Active):</strong> Redundancia mediante múltiples instancias
-                activas.
-                <br><em>Implementación:</em> <code>ThreadPoolExecutor</code> lanza 5 peticiones HTTP paralelas a
-                instancias (`replica_id=1..5`) del servicio de Pagos.
-            </li>
-            <li>
-                <strong>Votación (Voting) / Consenso:</strong> Comparación de resultados para enmascarar fallos
-                bizantinos.
-                <br><em>Implementación:</em> Algoritmo de mayoría simple (>=3) usando <code>Counter</code>. Valida si la
-                respuesta más común es correcta y descarta la minoría errónea.
-            </li>
-        </ul>
-
-        <button (click)="testH2()">Pagar Reserva (Consenso)</button>
-        <pre>{{ h2Result | json }}</pre>
-    </div>
-
-    <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
-        <h2>Hipótesis 3: Un Circuit Breaker puede degradar funcionalidad automáticamente sin que el usuario perciba
-            error</h2>
-        <p>Busca a través del Gateway. Si Busqueda cae, verás respuesta fallback.</p>
-
-        <h3>Tácticas de Arquitectura:</h3>
-        <ul>
-            <li>
-                <strong>Circuit Breaker:</strong> Detección y aislamiento de fallos para evitar cascadas.
-                <br><em>Implementación:</em> Lógica en <strong>API Gateway</strong> cuenta fallos consecutivos
-                (Threshold=3). Si se supera, bloquea tráfico hacia Busqueda por 30s (Open State).
-            </li>
-            <li>
-                <strong>Degradación Funcional (Functional Degradation):</strong> Ofrecer funcionalidad reducida en lugar
-                de fallar completamente.
-                <br><em>Implementación:</em> El Gateway retorna un JSON <em>fallback</em> (datos estáticos/vacíos)
-                cuando el circuito está abierto, evitando error 500 al cliente.
-            </li>
-        </ul>
-
-        <button (click)="testH3()">Buscar</button>
-        <pre>{{ h3Result | json }}</pre>
+    <div class="services-grid">
+        <app-service-card *ngFor="let service of services" [serviceName]="service.name" [status]="service.status"
+            [description]="service.description" [tags]="service.tags" [lastUpdated]="service.lastUpdated">
+            <div class="actions">
+                <!-- Buttons for specific actions per service -->
+                <button *ngIf="service.id === 'reservas'" (click)="testH1()" class="btn-primary">Create
+                    Reservation</button>
+                <button *ngIf="service.id === 'pagos'" (click)="testH2()" class="btn-secondary">Process Payment</button>
+                <button *ngIf="service.id === 'busqueda'" (click)="testH3()" class="btn-primary">Test Search</button>
+            </div>
+        </app-service-card>
     </div>
 </div>

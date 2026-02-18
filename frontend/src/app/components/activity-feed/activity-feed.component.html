@@ -1,0 +1,28 @@
+<div class="activity-feed">
+    <div class="feed-header">
+        <h3 class="feed-title">Activity feed</h3>
+        <button class="view-all-btn">View all</button>
+    </div>
+
+    <div class="feed-list">
+        <div *ngFor="let activity of activities" class="feed-item">
+            <div class="avatar-container">
+                <div class="avatar-placeholder" [ngClass]="activity.type">
+                    <!-- Simple initial or icon based on source -->
+                    {{ activity.source.substring(0, 1) }}
+                </div>
+            </div>
+            <div class="feed-content">
+                <div class="feed-top">
+                    <span class="feed-source">{{ activity.source }}</span>
+                    <span class="feed-time">{{ activity.timestamp | date:'shortTime' }}</span>
+                </div>
+                <p class="feed-message">{{ activity.message }}</p>
+            </div>
+        </div>
+
+        <div *ngIf="activities.length === 0" class="empty-state">
+            No recent activity.
+        </div>
+    </div>
+</div>

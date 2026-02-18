@@ -1,0 +1,21 @@
+<div class="service-card">
+    <div class="card-header">
+        <div class="status-indicator" [ngClass]="status"></div>
+        <h3 class="service-name">{{ serviceName }}</h3>
+        <span class="status-badge" [ngClass]="status">{{ status | titlecase }}</span>
+    </div>
+
+    <p class="service-description">{{ description }}</p>
+
+    <div class="card-footer">
+        <div class="tags">
+            <span *ngFor="let tag of tags" class="tag">{{ tag }}</span>
+        </div>
+        <span class="last-updated">Updated {{ lastUpdated }}</span>
+    </div>
+
+    <!-- Actions/Controls area if needed -->
+    <div class="card-actions">
+        <ng-content></ng-content>
+    </div>
+</div>
