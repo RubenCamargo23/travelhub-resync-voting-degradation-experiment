@@ -118,6 +118,62 @@ export class DashboardComponent {
 
     constructor(private http: HttpClient, private activityService: ActivityService) { }
 
+    private pollingInterval: any;
+    MONITOR_URL = 'http://127.0.0.1:5006';
+
+    ngOnInit() {
+        this.startPolling();
+    }
+
+    ngOnDestroy() {
+        if (this.pollingInterval) {
+            clearInterval(this.pollingInterval);
+        }
+    }
+
+    startPolling() {
+        // Initial fetch
+        this.checkServicesStatus();
+
+        // Poll every 5 seconds
+        this.pollingInterval = setInterval(() => {
+            this.checkServicesStatus();
+        }, 5000);
+    }
+
+    checkServicesStatus() {
+        this.http.get<any>(`${this.MONITOR_URL}/health-check`)
+            .subscribe({
+                next: (statusReport) => {
+                    this.updateServiceStatus(statusReport);
+                },
+                error: (err) => {
+                    console.error('Error polling monitor:', err);
+                    // If monitor is down, mark all as potentially unknown or handle gracefully
+                    // For now, we assume monitor might be down if we can't reach it
+                }
+            });
+    }
+
+    updateServiceStatus(report: any) {
+        this.services.forEach(service => {
+            const newStatus = report[service.id];
+            if (newStatus) {
+                // Map 'online'/'offline' to ServiceStatus type
+                // If service was 'degraded' logic might be complex, but for now map simplest
+                if (service.id === 'monitor') return; // Skip monitor self-update optimization if needed
+
+                // Keep 'degraded' if backend reports it (not implemented yet, backend only says online/offline)
+                // Or override. Let's simple override.
+
+                if (service.status !== newStatus) {
+                    service.status = newStatus;
+                    service.lastUpdated = 'Ahora';
+                }
+            }
+        });
+    }
+
     testH1() {
         this.activityService.addActivity('Iniciando prueba de creación de reserva...', 'Frontend', 'info');
         this.http.post(`${this.RESERVAS_URL}/reservas`, { cliente: "Tester", monto: 100 })

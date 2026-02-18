@@ -1,8 +1,9 @@
+
 import os
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
-from flask_restful import Api
+from flask_restful import Api, Resource
 from modelos import db
 from apscheduler.schedulers.background import BackgroundScheduler
 import requests
@@ -26,10 +27,44 @@ def create_flask_app():
     
     jwt = JWTManager(app)
 
-    return app
+    return app, api
 
-app = create_flask_app()
+app, api = create_flask_app()
 db.init_app(app)
+
+class HealthCheck(Resource):
+    def get(self):
+        services = {
+            "reservas": "http://127.0.0.1:5002/reservas",
+            "pagos": "http://127.0.0.1:5003/pago", # Assuming root or similar exists, or just port check
+            "inventario": "http://127.0.0.1:5004", # Inventario root
+            "busqueda": "http://127.0.0.1:5001/busqueda",
+            "gateway": "http://127.0.0.1:5007/search", # Gateway check
+            "monitor": "http://127.0.0.1:5006" # Self
+        }
+        
+        status_report = {}
+        
+        for name, url in services.items():
+            if name == "monitor":
+                status_report[name] = "online"
+                continue
+                
+            try:
+                # Short timeout to detect failures quickly
+                response = requests.get(url, timeout=1)
+                # Any response (even 404 or 401) means the service is alive/reachable at network level
+                # For this experiment, connectivity = online.
+                # If we want functional check, we'd check 200 OK.
+                # However, some endpoints need auth or valid data.
+                # A connection error means offline.
+                status_report[name] = "online"
+            except requests.exceptions.RequestException:
+                status_report[name] = "offline"
+
+        return jsonify(status_report)
+
+api.add_resource(HealthCheck, '/health-check')
 
 # Scheduler setup
 scheduler = BackgroundScheduler()
