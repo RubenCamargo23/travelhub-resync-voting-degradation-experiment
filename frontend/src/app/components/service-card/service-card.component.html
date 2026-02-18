@@ -7,6 +7,8 @@
 
     <p class="service-description">{{ description }}</p>
 
+    <div class="service-details" *ngIf="detailedInfo" [innerHTML]="detailedInfo"></div>
+
     <div class="card-footer">
         <div class="tags">
             <span *ngFor="let tag of tags" class="tag">{{ tag }}</span>

@@ -14,6 +14,6 @@ import { ServiceCardComponent } from '../components/service-card/service-card.co
         CommonModule,
         ExperimentsRoutingModule,
         HttpClientModule
-    ]
+    ],
 })
 export class ExperimentsModule { }

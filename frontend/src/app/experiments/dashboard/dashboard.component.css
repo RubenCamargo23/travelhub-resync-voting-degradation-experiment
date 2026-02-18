@@ -39,6 +39,10 @@
     gap: 1rem;
 }
 
+.clickable-card {
+    cursor: pointer;
+}
+
 .icon-sm {
     width: 16px;
     height: 16px;

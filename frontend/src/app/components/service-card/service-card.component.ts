@@ -11,6 +11,7 @@ export class ServiceCardComponent {
     @Input() serviceName: string = '';
     @Input() status: 'online' | 'offline' | 'degraded' | 'maintenance' = 'online';
     @Input() description: string = '';
+    @Input() detailedInfo: string = '';
     @Input() tags: string[] = [];
     @Input() lastUpdated: string = '';
 }
