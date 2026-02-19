@@ -4,8 +4,6 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
 from modelos import db, Inventario
-from apscheduler.schedulers.background import BackgroundScheduler
-from tasks import poll_reservations
 
 def create_flask_app():
     app = Flask(__name__)
@@ -38,11 +36,5 @@ with app.app_context():
         db.session.add(Inventario(producto='Habitacion_Standard', cantidad=100))
         db.session.commit()
 
-# Scheduler setup
-scheduler = BackgroundScheduler()
-# Run polling every 10 seconds as per H1
-scheduler.add_job(lambda: app.app_context().push() or poll_reservations(), 'interval', seconds=10)
-scheduler.start()
-
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5004)), debug=False, use_reloader=False)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5004)), debug=False)
