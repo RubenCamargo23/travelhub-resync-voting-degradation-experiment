@@ -1,1 +1,1 @@
-from .vistas import VistaReservas, VistaReserva, VistaPagoReserva
+from .vistas import VistaReservas, VistaReserva, VistaPagoReserva, VistaReservasNaive, VistaPagoReservaNaive

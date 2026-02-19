@@ -174,42 +174,147 @@ export class DashboardComponent {
         });
     }
 
+
+    // Resultados de contraste
+    h1TacticsResult: any = null;
+    h1NaiveResult: any = null;
+    h1TacticsTime: number = 0;
+    h1NaiveTime: number = 0;
+    h1Loading = false;
+
+    h2TacticsResult: any = null;
+    h2NaiveResult: any = null;
+    h2TacticsTime: number = 0;
+    h2NaiveTime: number = 0;
+    h2Loading = false;
+
+    h3TacticsResult: any = null;
+    h3NaiveResult: any = null;
+    h3TacticsTime: number = 0;
+    h3NaiveTime: number = 0;
+    h3Loading = false;
+
     testH1() {
-        this.activityService.addActivity('Iniciando prueba de creación de reserva...', 'Frontend', 'info');
-        this.http.post(`${this.RESERVAS_URL}/reservas`, { cliente: "Tester", monto: 100 })
+        this.h1Loading = true;
+        this.h1TacticsResult = null;
+        this.h1NaiveResult = null;
+        this.activityService.addActivity('Iniciando contraste H1: Outbox vs Naive...', 'Frontend', 'info');
+
+        const body = { cliente: "Tester", monto: 100 };
+
+        // CON tácticas (Outbox)
+        const t1 = performance.now();
+        this.http.post(`${this.RESERVAS_URL}/reservas`, body)
             .subscribe({
                 next: (res: any) => {
-                    const msg = `Reserva creada: ID ${res.id || 'N/A'}`;
-                    this.activityService.addActivity(msg, 'Servicio Reservas', 'success');
+                    this.h1TacticsTime = Math.round(performance.now() - t1);
+                    this.h1TacticsResult = res;
+                    this.activityService.addActivity(`✅ CON Outbox: Reserva ID ${res.id}`, 'Reservas', 'success');
                 },
                 error: (err) => {
-                    this.activityService.addActivity(`Error al crear reserva: ${err.message}`, 'Servicio Reservas', 'error');
+                    this.h1TacticsTime = Math.round(performance.now() - t1);
+                    this.h1TacticsResult = { error: err.message || err.statusText };
+                    this.activityService.addActivity(`❌ CON Outbox: ${err.message}`, 'Reservas', 'error');
+                }
+            });
+
+        // SIN tácticas (Naive)
+        const t2 = performance.now();
+        this.http.post(`${this.RESERVAS_URL}/reservas/naive`, body)
+            .subscribe({
+                next: (res: any) => {
+                    this.h1NaiveTime = Math.round(performance.now() - t2);
+                    this.h1NaiveResult = res;
+                    this.h1Loading = false;
+                    this.activityService.addActivity(`✅ SIN Outbox: Reserva ID ${res.id}`, 'Reservas (Naive)', 'success');
+                },
+                error: (err) => {
+                    this.h1NaiveTime = Math.round(performance.now() - t2);
+                    this.h1NaiveResult = { error: err.message || err.statusText };
+                    this.h1Loading = false;
+                    this.activityService.addActivity(`❌ SIN Outbox: ${err.message}`, 'Reservas (Naive)', 'error');
                 }
             });
     }
 
     testH2() {
-        this.activityService.addActivity('Iniciando prueba de pago con consenso...', 'Frontend', 'info');
+        this.h2Loading = true;
+        this.h2TacticsResult = null;
+        this.h2NaiveResult = null;
+        this.activityService.addActivity('Iniciando contraste H2: Votación vs Naive...', 'Frontend', 'info');
+
+        // CON tácticas (5 réplicas + voting)
+        const t1 = performance.now();
         this.http.post(`${this.RESERVAS_URL}/reservas/1/pagar`, {})
             .subscribe({
                 next: (res: any) => {
-                    this.activityService.addActivity('Pago procesado exitosamente.', 'Servicio Pagos', 'success');
+                    this.h2TacticsTime = Math.round(performance.now() - t1);
+                    this.h2TacticsResult = res;
+                    this.activityService.addActivity(`✅ CON Votación: ${res.mensaje}`, 'Pagos', 'success');
                 },
                 error: (err) => {
-                    this.activityService.addActivity(`Pago falló: ${err.message}`, 'Servicio Pagos', 'error');
+                    this.h2TacticsTime = Math.round(performance.now() - t1);
+                    this.h2TacticsResult = { error: err.message || err.statusText };
+                    this.activityService.addActivity(`❌ CON Votación: ${err.message}`, 'Pagos', 'error');
+                }
+            });
+
+        // SIN tácticas (llamada única)
+        const t2 = performance.now();
+        this.http.post(`${this.RESERVAS_URL}/reservas/1/pagar/naive`, {})
+            .subscribe({
+                next: (res: any) => {
+                    this.h2NaiveTime = Math.round(performance.now() - t2);
+                    this.h2NaiveResult = res;
+                    this.h2Loading = false;
+                    this.activityService.addActivity(`✅ SIN Votación: ${res.mensaje}`, 'Pagos (Naive)', 'success');
+                },
+                error: (err) => {
+                    this.h2NaiveTime = Math.round(performance.now() - t2);
+                    this.h2NaiveResult = { error: err.message || err.statusText };
+                    this.h2Loading = false;
+                    this.activityService.addActivity(`❌ SIN Votación: ${err.message}`, 'Pagos (Naive)', 'error');
                 }
             });
     }
 
     testH3() {
-        this.activityService.addActivity('Iniciando prueba de búsqueda...', 'Frontend', 'info');
+        this.h3Loading = true;
+        this.h3TacticsResult = null;
+        this.h3NaiveResult = null;
+        this.activityService.addActivity('Iniciando contraste H3: Circuit Breaker vs Naive...', 'Frontend', 'info');
+
+        // CON tácticas (Circuit Breaker)
+        const t1 = performance.now();
         this.http.get(`${this.GATEWAY_URL}/search`)
             .subscribe({
                 next: (res: any) => {
-                    this.activityService.addActivity('Búsqueda completada exitosamente.', 'Gateway', 'success');
+                    this.h3TacticsTime = Math.round(performance.now() - t1);
+                    this.h3TacticsResult = res;
+                    this.activityService.addActivity('✅ CON Circuit Breaker: Búsqueda OK', 'Gateway', 'success');
                 },
                 error: (err) => {
-                    this.activityService.addActivity(`Búsqueda falló: ${err.message}`, 'Gateway', 'error');
+                    this.h3TacticsTime = Math.round(performance.now() - t1);
+                    this.h3TacticsResult = { error: err.message || err.statusText };
+                    this.activityService.addActivity(`❌ CON Circuit Breaker: ${err.message}`, 'Gateway', 'error');
+                }
+            });
+
+        // SIN tácticas (llamada directa)
+        const t2 = performance.now();
+        this.http.get(`${this.GATEWAY_URL}/search/naive`)
+            .subscribe({
+                next: (res: any) => {
+                    this.h3NaiveTime = Math.round(performance.now() - t2);
+                    this.h3NaiveResult = res;
+                    this.h3Loading = false;
+                    this.activityService.addActivity('✅ SIN Circuit Breaker: Búsqueda OK', 'Gateway (Naive)', 'success');
+                },
+                error: (err) => {
+                    this.h3NaiveTime = Math.round(performance.now() - t2);
+                    this.h3NaiveResult = { error: err.message || err.statusText };
+                    this.h3Loading = false;
+                    this.activityService.addActivity(`❌ SIN Circuit Breaker: ${err.message}`, 'Gateway (Naive)', 'error');
                 }
             });
     }

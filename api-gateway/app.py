@@ -4,7 +4,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
 from modelos import db
-from vistas import VistaBusquedaGateway
+from vistas import VistaBusquedaGateway, VistaBusquedaGatewayNaive
 
 def create_flask_app():
     app = Flask(__name__)
@@ -24,6 +24,8 @@ def create_flask_app():
     
     api = Api(app)
     api.add_resource(VistaBusquedaGateway, '/search')
+    # Naive endpoint (sin tácticas)
+    api.add_resource(VistaBusquedaGatewayNaive, '/search/naive')
     
     jwt = JWTManager(app)
 

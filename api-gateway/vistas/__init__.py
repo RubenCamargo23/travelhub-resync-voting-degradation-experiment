@@ -1,1 +1,1 @@
-from .vistas import VistaBusquedaGateway
+from .vistas import VistaBusquedaGateway, VistaBusquedaGatewayNaive

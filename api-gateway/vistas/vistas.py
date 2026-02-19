@@ -53,3 +53,22 @@ class VistaBusquedaGateway(Resource):
         except Exception as e:
             # Si el CB está cerrado pero falla la llamada (y no saltó al fallback del decorador por alguna razón)
             return {"error": str(e)}, 503
+
+
+# =============================================================================
+# VERSIÓN NAIVE (SIN TÁCTICAS) — Para contraste experimental
+# =============================================================================
+
+class VistaBusquedaGatewayNaive(Resource):
+    """
+    SIN Circuit Breaker. Llama directamente al microservicio de búsqueda.
+    Si el servicio está caído, cada intento falla con error directo (sin fallback ni protección).
+    """
+    def get(self):
+        try:
+            url = "http://127.0.0.1:5001/busqueda"
+            response = requests.get(url, timeout=5)
+            return response.json(), response.status_code
+        except Exception as e:
+            return {"error": str(e), "tactica": "ninguna"}, 503
+

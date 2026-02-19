@@ -166,3 +166,57 @@ class VistaPagoReserva(Resource):
                 "error": "Consenso fallido (No majority agreement)",
                 "distribucion_votos": dict(counts)
             }, 409
+
+
+# =============================================================================
+# VERSIONES NAIVE (SIN TÁCTICAS) — Para contraste experimental
+# =============================================================================
+
+class VistaReservasNaive(Resource):
+    """
+    SIN Outbox. Guarda la reserva directamente sin generar evento de dominio.
+    Si Inventario está caído, la reserva se crea pero nunca se sincroniza.
+    """
+    def post(self):
+        try:
+            data = request.get_json()
+            nueva_reserva = Reserva(
+                cliente=data.get('cliente', 'Anonimo'),
+                monto=data.get('monto', 0.0)
+            )
+            db.session.add(nueva_reserva)
+            db.session.commit()
+
+            return {
+                "mensaje": "Reserva creada (SIN Outbox — sin evento de sync)",
+                "id": nueva_reserva.id,
+                "tactica": "ninguna"
+            }, 201
+
+        except Exception as e:
+            db.session.rollback()
+            return {"error": str(e)}, 500
+
+
+class VistaPagoReservaNaive(Resource):
+    """
+    SIN Votación. Llama al servicio de pagos una sola vez (replica_id=1).
+    No detecta respuestas corruptas.
+    """
+    def post(self, id_reserva):
+        PAYMENTS_URL = "http://127.0.0.1:5003/pago"
+
+        try:
+            resp = requests.post(PAYMENTS_URL, json={"replica_id": 1, "amount": 45.0}, timeout=5)
+            if resp.status_code == 200:
+                data = resp.json()
+                return {
+                    "mensaje": "Pago procesado (SIN consenso — llamada única)",
+                    "monto": data.get("processed_amount"),
+                    "tactica": "ninguna"
+                }, 200
+            else:
+                return {"error": "Payment service returned an error"}, resp.status_code
+        except Exception as e:
+            return {"error": str(e)}, 503
+

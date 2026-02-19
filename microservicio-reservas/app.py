@@ -4,7 +4,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
 from modelos import db
-from vistas import VistaReservas, VistaReserva, VistaPagoReserva
+from vistas import VistaReservas, VistaReserva, VistaPagoReserva, VistaReservasNaive, VistaPagoReservaNaive
 
 def create_flask_app():
     app = Flask(__name__)
@@ -25,6 +25,9 @@ def create_flask_app():
     api.add_resource(VistaReservas, '/reservas')
     api.add_resource(VistaReserva, '/reservas/<int:id_reserva>')
     api.add_resource(VistaPagoReserva, '/reservas/<int:id_reserva>/pagar')
+    # Naive endpoints (sin tácticas)
+    api.add_resource(VistaReservasNaive, '/reservas/naive')
+    api.add_resource(VistaPagoReservaNaive, '/reservas/<int:id_reserva>/pagar/naive')
     
     jwt = JWTManager(app)
 
